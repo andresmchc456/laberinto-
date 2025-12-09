@@ -34,6 +34,10 @@ public class LaberintoGUI extends JFrame {
     private List<Integer> sequence; // secuencia a animar
     private List<Integer> finalPath; // camino final (para CaminoMasCorto)
     private int stepIndex;
+    private boolean isPaused = false; // Control de pausa
+    private JButton pauseResumeBtn; // Botón de pausa/reanudación
+    private JButton anteriorBtn; // Botón paso anterior
+    private JButton siguienteBtn; // Botón paso siguiente
 
     public LaberintoGUI() {
         super("Laberinto - Visualizador");
@@ -59,6 +63,21 @@ public class LaberintoGUI extends JFrame {
         ejecutarBtn.addActionListener(e -> ejecutarAlgoritmo());
         controlPanel.add(ejecutarBtn);
 
+        pauseResumeBtn = new JButton("Pausar");
+        pauseResumeBtn.setEnabled(false);
+        pauseResumeBtn.addActionListener(e -> pausarReanudarAnimacion());
+        controlPanel.add(pauseResumeBtn);
+
+        anteriorBtn = new JButton("◀ Anterior");
+        anteriorBtn.setEnabled(false);
+        anteriorBtn.addActionListener(e -> pasoPrevio());
+        controlPanel.add(anteriorBtn);
+
+        siguienteBtn = new JButton("Siguiente ▶");
+        siguienteBtn.setEnabled(false);
+        siguienteBtn.addActionListener(e -> pasoSiguiente());
+        controlPanel.add(siguienteBtn);
+
         JButton detenerBtn = new JButton("Detener");
         detenerBtn.addActionListener(e -> detenerAnimacion());
         controlPanel.add(detenerBtn);
@@ -72,6 +91,11 @@ public class LaberintoGUI extends JFrame {
         controlPanel.add(exitBtn);
         speedSlider = new JSlider(50, 1000, 250);
         speedSlider.setToolTipText("Velocidad (ms)");
+        speedSlider.addChangeListener(e -> {
+            if (timer != null && timer.isRunning()) {
+                timer.setDelay(speedSlider.getValue());
+            }
+        });
         controlPanel.add(new JLabel("Velocidad:"));
         controlPanel.add(speedSlider);
 
@@ -177,26 +201,97 @@ public class LaberintoGUI extends JFrame {
         timer = new Timer(delay, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (stepIndex < sequence.size()) {
+                if (!isPaused && stepIndex < sequence.size()) {
                     int id = sequence.get(stepIndex);
                     mazePanel.markVisited(id);
                     stepIndex++;
-                } else {
+                } else if (stepIndex >= sequence.size()) {
                     // Si tenemos camino final, marcarlo
                     if (finalPath != null && !finalPath.isEmpty()) {
                         mazePanel.setPath(finalPath);
                     }
                     timer.stop();
+                    pauseResumeBtn.setEnabled(false);
+                    anteriorBtn.setEnabled(false);
+                    siguienteBtn.setEnabled(false);
                 }
             }
         });
         timer.setDelay(speedSlider.getValue());
+        
+        // Habilitar botones de control
+        isPaused = false;
+        pauseResumeBtn.setText("Pausar");
+        pauseResumeBtn.setEnabled(true);
+        anteriorBtn.setEnabled(true);
+        siguienteBtn.setEnabled(true);
+        
         timer.start();
     }
 
     private void detenerAnimacion() {
         if (timer != null && timer.isRunning()) timer.stop();
         if (mazePanel != null) mazePanel.clearMarks();
+        isPaused = false;
+        pauseResumeBtn.setEnabled(false);
+        anteriorBtn.setEnabled(false);
+        siguienteBtn.setEnabled(false);
+        pauseResumeBtn.setText("Pausar");
+    }
+
+    private void pausarReanudarAnimacion() {
+        if (timer == null || sequence == null) return;
+
+        if (isPaused) {
+            // Reanudar
+            isPaused = false;
+            pauseResumeBtn.setText("Pausar");
+            timer.start();
+        } else {
+            // Pausar
+            isPaused = true;
+            pauseResumeBtn.setText("Reanudar");
+            timer.stop();
+        }
+    }
+
+    private void pasoSiguiente() {
+        if (sequence == null || stepIndex >= sequence.size()) return;
+
+        if (timer != null && timer.isRunning()) {
+            timer.stop();
+            isPaused = true;
+            pauseResumeBtn.setText("Reanudar");
+        }
+
+        if (stepIndex < sequence.size()) {
+            int id = sequence.get(stepIndex);
+            mazePanel.markVisited(id);
+            stepIndex++;
+        }
+
+        if (stepIndex >= sequence.size() && finalPath != null && !finalPath.isEmpty()) {
+            mazePanel.setPath(finalPath);
+        }
+    }
+
+    private void pasoPrevio() {
+        if (sequence == null || stepIndex == 0) return;
+
+        if (timer != null && timer.isRunning()) {
+            timer.stop();
+            isPaused = true;
+            pauseResumeBtn.setText("Reanudar");
+        }
+
+        stepIndex--;
+        mazePanel.clearMarks();
+
+        // Redibujar todos los pasos hasta stepIndex
+        for (int i = 0; i < stepIndex; i++) {
+            int id = sequence.get(i);
+            mazePanel.markVisited(id);
+        }
     }
 
     private void mostrarMatrices() {

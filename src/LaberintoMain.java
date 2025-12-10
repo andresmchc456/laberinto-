@@ -1,37 +1,59 @@
 // package com.laberinto;
 
-import algorithms.CaminoMasCorto;
-import algorithms.Recorridos;
-import grafo.Grafo;
-import models.Nodo;
-import utils.LaberintoParser;
-import utils.MatrizesGrafo;
+import algorithms.CaminoMasCorto;  // Algoritmo para encontrar el camino más corto
+import algorithms.Recorridos;      // Diferentes tipos de recorridos (DFS, BFS)
+import grafo.Grafo;                 // Estructura del grafo del laberinto
+import models.Nodo;                 // Nodos que componen el grafo
+import utils.LaberintoParser;        // Parser para leer archivos de laberinto
+import utils.MatrizesGrafo;          // Generador de matrices (adyacencia e incidencia)
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Scanner;
+import java.io.IOException;          // Para manejar excepciones de entrada/salida
+import java.util.List;               // Listas de datos
+import java.util.Scanner;            // Para leer entrada desde la consola
 
 /**
- * Clase principal del sistema de resolución de laberintos.
+ * ============================================================
+ * CLASE PRINCIPAL: LaberintoMain
+ * ============================================================
+ * Esta es la clase principal de la aplicación de resolución de laberintos.
+ * Proporciona una interfaz de línea de comandos (CLI) que permite:
+ *   - Cargar archivos de laberinto (formato .txt)
+ *   - Construir un grafo a partir del laberinto
+ *   - Encontrar el camino más corto entre dos puntos (A y B) usando BFS
+ *   - Ejecutar diferentes algoritmos de recorrido (DFS, BFS, Greedy)
+ *   - Visualizar matrices del grafo (adyacencia e incidencia)
+ * 
+ * El programa utiliza un menú interactivo para que el usuario pueda
+ * seleccionar qué operación desea realizar.
  */
 public class LaberintoMain {
-    private LaberintoParser parser;
-    private Grafo grafo;
-    private CaminoMasCorto caminoMasCorto;
-    private Recorridos recorridos;
-    private MatrizesGrafo matrices;
+    // ===== ATRIBUTOS DE LA APLICACIÓN =====
+    private LaberintoParser parser;          // Lee archivos de laberinto
+    private Grafo grafo;                     // Grafo construido desde el laberinto
+    private CaminoMasCorto caminoMasCorto;   // Busca el camino más corto (BFS)
+    private Recorridos recorridos;           // Ejecuta DFS, BFS, Greedy
+    private MatrizesGrafo matrices;          // Genera matrices del grafo
 
+    /**
+     * Método principal: punto de entrada de la aplicación
+     * Crea una instancia de LaberintoMain e inicia el programa
+     */
     public static void main(String[] args) {
         LaberintoMain app = new LaberintoMain();
-        app.ejecutar();
+        app.ejecutar();  // Inicia el ciclo principal
     }
 
+    /**
+     * Método principal de ejecución: ciclo de menú interactivo
+     * Muestra opciones al usuario y procesa sus selecciones
+     */
     private void ejecutar() {
-        Scanner scanner = new Scanner(System.in);
-        boolean salir = false;
+        Scanner scanner = new Scanner(System.in);  // Lee entrada del usuario
+        boolean salir = false;  // Controla si continuar o salir
 
+        // ===== CICLO PRINCIPAL DEL PROGRAMA =====
         while (!salir) {
-            mostrarMenu();
+            mostrarMenu();  // Muestra las opciones disponibles
             System.out.print("\nSeleccione una opción: ");
             String opcion = scanner.nextLine().trim();
 

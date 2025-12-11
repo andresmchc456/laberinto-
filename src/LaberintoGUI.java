@@ -45,10 +45,16 @@ public class LaberintoGUI extends JFrame {
         setLayout(new BorderLayout());
 
         JPanel controlPanel = new JPanel();
+        controlPanel.setLayout(new FlowLayout(FlowLayout.LEFT)); // asegurar disposición visible de los botones
         JButton abrirBtn = new JButton("Abrir archivo");
         abrirBtn.addActionListener(e -> abrirArchivo());
         controlPanel.add(abrirBtn);
-
+        
+        // Botón para mostrar matrices (se asegura que esté añadido)
+        JButton matricesBtn = new JButton("Mostrar matrices");
+        matricesBtn.addActionListener(e -> mostrarMatrices());
+        controlPanel.add(matricesBtn);
+        
         algoritmoCombo = new JComboBox<>(new String[]{
             "Camino más corto (A->B)",
             "DFS - Preorden",
@@ -81,10 +87,6 @@ public class LaberintoGUI extends JFrame {
         JButton detenerBtn = new JButton("Detener");
         detenerBtn.addActionListener(e -> detenerAnimacion());
         controlPanel.add(detenerBtn);
-
-        JButton matricesBtn = new JButton("Mostrar matrices");
-        matricesBtn.addActionListener(e -> mostrarMatrices());
-        controlPanel.add(matricesBtn);
 
         JButton exitBtn = new JButton("Salir");
         exitBtn.addActionListener(e -> System.exit(0));
